@@ -19,36 +19,40 @@ export class TransactionService implements ITransactionService {
     public async executeTrade(transactionData: any): Promise<Transaction> {
         const { userId, stockId, type, quantity } = transactionData;
         const t = await sequelize.transaction();
-
+        let transactionCommitted = false;
+    
         try {
             // Validate stock and portfolio
             await this.stockService.validateStock(stockId, t);
-            await this.portfolioService.validatePortfolio(userId, t);
-
             // Fetch current stock price
             const currentPrice = await this.stockService.fetchCurrentStockPrice(stockId, t);
                 
             if (type === 'buy') {
                 // Check user's funds (if applicable)                
-                await this.portfolioService.checkUserCanAffordPurchase(userId,stockId,quantity,currentPrice);
+                await this.portfolioService.checkUserCanAffordPurchase(userId, stockId, quantity, currentPrice, t);
                 await this.portfolioService.updatePortfolioForBuy(userId, stockId, quantity, currentPrice, t);
+                
             } else if (type === 'sell') {
                 // Check if the user has sufficient shares
-                
+                // Add logic for selling shares
             }
-
+    
             // Record transaction
             const transaction = await Transaction.create({
                 userId, stockId, type, quantity, price: currentPrice
             }, { transaction: t });
-
+    
             await t.commit();
+            transactionCommitted = true;
             return transaction;
         } catch (error) {
-            await t.rollback();
+            if (!transactionCommitted) {
+                await t.rollback();
+            }
             throw error;
         }
     }
+    
 
     public async getTransactionsByUserId(userId: number): Promise<Transaction[]> {
         try {

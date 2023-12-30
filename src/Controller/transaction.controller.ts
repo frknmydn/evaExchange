@@ -12,8 +12,9 @@ export class TransactionController {
         try {
             const transaction = await this.transactionService.executeTrade(req.body);
             res.status(201).json(transaction);
-        } catch (error) {
-            res.status(500).json({ message: 'Error creating transaction' });
+        } catch (error:any) {
+            res.status(500).send(error)
+            console.log(error.message)
         }
     }
 
