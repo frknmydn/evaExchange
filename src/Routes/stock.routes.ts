@@ -3,9 +3,12 @@ import { StockController } from '../Controller/stock.controller'
 import { StockService } from '../Services/stock.service'
 
 const router = express.Router();
-const stockController = new StockController(new StockService);
+const storckService = new StockService();
+const stockController = new StockController(storckService);
 
-router.get('/stocks/:symbol', stockController.getStock);
-router.put('/stocks/:symbol', stockController.updateStockPrice);
+router.post('/stocks',(req, res) => stockController.createStock(req, res));
+router.get('/stocks/:symbol', (req, res) => stockController.getStockBySymbol(req, res));
+router.get('/stocksWithid/:id',(req, res) => stockController.getStockById(req, res))
+router.put('/stocks/:symbol', (req, res) => stockController.updateStockPrice(req, res));
 
 export default router;

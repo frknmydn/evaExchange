@@ -3,10 +3,16 @@ import sequelize from './config/db'; // Dikkat: İthal ettiğiniz değişken ad�
 import setupAssociations from './Model/associations';
 import express from "express";
 import userRoutes from "./Routes/user.router";
+import stockRoutes from "./Routes/stock.routes"
+import portfolioRoutes from "./Routes/portfolio.routes"
+import transactionRoutes from "./Routes/transaction.routes"
 
 const app = express();
 app.use(express.json());
 app.use(userRoutes);
+app.use(stockRoutes);
+app.use(portfolioRoutes);
+app.use(transactionRoutes);
 const PORT = process.env.PORT || 3000;
 
 setupAssociations();
