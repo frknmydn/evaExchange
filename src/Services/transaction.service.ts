@@ -33,8 +33,9 @@ export class TransactionService implements ITransactionService {
                 await this.portfolioService.updatePortfolioForBuy(userId, stockId, quantity, currentPrice, t);
                 
             } else if (type === 'sell') {
-                // Check if the user has sufficient shares
-                // Add logic for selling shares
+                await this.portfolioService.checkUserCanAffordSell(userId, stockId, quantity, currentPrice, t);
+                await this.portfolioService.updatePortfolioForSell(userId,stockId,quantity,currentPrice,t);
+                
             }
     
             // Record transaction

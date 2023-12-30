@@ -3,7 +3,11 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/db';
 
-class Portfolio extends Model {}
+class Portfolio extends Model {
+  public userId!: number; 
+  public stockId!: number;
+  public quantity!: number;
+}
 
 Portfolio.init({
   id: {

@@ -13,7 +13,7 @@ export class UserService implements IUserService {
     return user;
   }
 
-  async changeUserBalance(userId: number, decreasedBalance: number): Promise<any> {
+  async decreaseUserBalance(userId: number, decreasedBalance: number): Promise<any> {
   const findingUser = await this.getUserById(userId);
   if (!findingUser) {
     throw new Error('User not found');
@@ -21,6 +21,20 @@ export class UserService implements IUserService {
 
   // Update the user's balance
   findingUser.balance = findingUser.balance-decreasedBalance;
+
+  await findingUser.save();
+
+  return findingUser;
+}
+
+async increaseUserBalance(userId: number, decreasedBalance: number): Promise<any>{
+  const findingUser = await this.getUserById(userId);
+  if (!findingUser) {
+    throw new Error('User not found');
+  }
+
+  // Update the user's balance
+  findingUser.balance = findingUser.balance+decreasedBalance;
 
   await findingUser.save();
 

@@ -4,9 +4,7 @@ import { IUserService } from "../interfaces/iuser.service";
 
 export class PortfolioService implements IPortfolioService {
   private userService: IUserService;
-  constructor(
-    userService: IUserService
-  ) {
+  constructor(userService: IUserService) {
     this.userService = userService;
   }
   public async getPortfolioByUserId(userId: number): Promise<Portfolio | null> {
@@ -58,18 +56,73 @@ export class PortfolioService implements IPortfolioService {
   ): Promise<any> {
     const amount = quantity * currentPrice;
 
-    
-      const portfolioEntry = await Portfolio.create({
+    const portfolioEntry = await Portfolio.create({
+      userId: userId,
+      stockId: stockId,
+      quantity: quantity,
+    });
+
+    await this.userService.decreaseUserBalance(userId, amount);
+
+    return portfolioEntry;
+  }
+
+  public async updatePortfolioForSell(
+    userId: number,
+    stockId: number,
+    quantity: number,
+    currentPrice: number,
+    transaction?: any
+  ): Promise<any> {
+    const amount = quantity * currentPrice;
+    const findingPortfolio = await Portfolio.findOne({
+      where: {
         userId: userId,
         stockId: stockId,
-        quantity: quantity,
-      });
+      },
+      transaction,
+    });
+    if (!findingPortfolio) {
+      throw new Error(`User ID ${userId} does not own stock ID ${stockId}`);
+    }
 
-      
+    if (findingPortfolio.quantity < quantity) {
+      throw new Error(
+        `User ID ${userId} does not have enough shares of stock ID ${stockId} to sell`
+      );
+    }
 
-      await this.userService.changeUserBalance(userId, amount);
+    findingPortfolio.quantity -= quantity;
+    await findingPortfolio.save({ transaction });
 
-      return portfolioEntry;
-    
+    // Kullanıcının bakiyesini artır
+    await this.userService.increaseUserBalance(userId, amount);
+
+    return findingPortfolio;
+  }
+
+  public async checkUserCanAffordSell(
+    userId: number,
+    stockId: number,
+    quantity: number,
+    transaction?: any
+  ): Promise<void> {
+    const findingPortfolio = await Portfolio.findOne({
+      where: {
+        userId: userId,
+        stockId: stockId,
+      },
+      transaction,
+    });
+
+    if (!findingPortfolio) {
+      throw new Error(`User ID ${userId} does not own stock ID ${stockId}`);
+    }
+
+    if (findingPortfolio.quantity < quantity) {
+      throw new Error(
+        `User ID ${userId} does not have enough shares of stock ID ${stockId} to sell`
+      );
+    }
   }
 }
