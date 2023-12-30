@@ -75,13 +75,18 @@ export class PortfolioService implements IPortfolioService {
     transaction?: any
   ): Promise<any> {
     const amount = quantity * currentPrice;
+    console.log(amount);
+    
     const findingPortfolio = await Portfolio.findOne({
       where: {
         userId: userId,
         stockId: stockId,
       },
-      transaction,
+      transaction: transaction,
+      
     });
+  
+    
     if (!findingPortfolio) {
       throw new Error(`User ID ${userId} does not own stock ID ${stockId}`);
     }
@@ -93,10 +98,11 @@ export class PortfolioService implements IPortfolioService {
     }
 
     findingPortfolio.quantity -= quantity;
+    await this.userService.increaseUserBalance(userId, amount);
     await findingPortfolio.save({ transaction });
 
-    // Kullanıcının bakiyesini artır
-    await this.userService.increaseUserBalance(userId, amount);
+    
+    
 
     return findingPortfolio;
   }
@@ -105,6 +111,7 @@ export class PortfolioService implements IPortfolioService {
     userId: number,
     stockId: number,
     quantity: number,
+    currentPrice: number,
     transaction?: any
   ): Promise<void> {
     const findingPortfolio = await Portfolio.findOne({

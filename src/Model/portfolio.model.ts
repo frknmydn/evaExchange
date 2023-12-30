@@ -1,5 +1,3 @@
-// models/portfolio.js
-
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/db';
 
@@ -10,26 +8,23 @@ class Portfolio extends Model {
 }
 
 Portfolio.init({
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true
-  },
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Users',
+      model: 'Users', // Bu modelin adı veritabanınızdaki tablo adı ile eşleşmeli
       key: 'id'
-    }
+    },
+    primaryKey: true
   },
   stockId: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Stocks',
+      model: 'Stocks', // Bu modelin adı veritabanınızdaki tablo adı ile eşleşmeli
       key: 'id'
-    }
+    },
+    primaryKey: true
   },
   quantity: {
     type: DataTypes.INTEGER,
@@ -38,7 +33,9 @@ Portfolio.init({
 }, {
   sequelize,
   modelName: 'Portfolio',
-  timestamps: true
+  timestamps: true,
+  //freezeTableName: true
 });
+
 
 export default Portfolio;

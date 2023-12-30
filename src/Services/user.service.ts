@@ -32,9 +32,10 @@ async increaseUserBalance(userId: number, decreasedBalance: number): Promise<any
   if (!findingUser) {
     throw new Error('User not found');
   }
-
+  console.log(decreasedBalance)
   // Update the user's balance
-  findingUser.balance = findingUser.balance+decreasedBalance;
+  findingUser.balance = +findingUser.balance + +decreasedBalance;
+  console.log(findingUser.balance)
 
   await findingUser.save();
 
