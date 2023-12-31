@@ -11,7 +11,7 @@ export class PortfolioController {
     public async getPortfolioByUserId(req: Request, res: Response) {
         const userId = parseInt(req.params.userId);
         try {
-            const portfolio = await this.portfolioService.getPortfolioByUserId(userId);
+            const portfolio = await this.portfolioService.getUserStocks(userId);
             if (!portfolio) {
                 return res.status(404).json({ message: 'Portfolio not found' });
             }

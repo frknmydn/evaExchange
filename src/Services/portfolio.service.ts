@@ -1,6 +1,7 @@
 import Portfolio from "../Model/portfolio.model";
 import { IPortfolioService } from "../interfaces/iportfolio.service";
 import { IUserService } from "../interfaces/iuser.service";
+import Stock from "../Model/stock.model";
 
 export class PortfolioService implements IPortfolioService {
   private userService: IUserService;
@@ -27,7 +28,7 @@ export class PortfolioService implements IPortfolioService {
     if (!portfolio) {
       throw new Error(`Portfolio for user ID ${userId} not found`);
     }
-    // Additional validations can be added here
+    
   }
 
   public async checkUserCanAffordPurchase(
@@ -55,18 +56,37 @@ export class PortfolioService implements IPortfolioService {
     transaction?: any
   ): Promise<any> {
     const amount = quantity * currentPrice;
-
-    const portfolioEntry = await Portfolio.create({
-      userId: userId,
-      stockId: stockId,
-      quantity: quantity,
+  
+    // this query finds portfolio for user beacuse if user buyed same coin before it shouldnt create new portfolio entity
+    const existingPortfolioEntry = await Portfolio.findOne({
+      where: {
+        userId: userId,
+        stockId: stockId,
+      },
+      transaction: transaction,
     });
-
+  
+    let portfolioEntry;
+  
+    if (existingPortfolioEntry) {
+      // update previosly buyed protfoio entity
+      existingPortfolioEntry.quantity += quantity;
+      portfolioEntry = await existingPortfolioEntry.save({ transaction });
+    } else {
+      // if user didint buy before then create new
+      portfolioEntry = await Portfolio.create({
+        userId: userId,
+        stockId: stockId,
+        quantity: quantity,
+      }, { transaction: transaction });
+    }
+  
+    
     await this.userService.decreaseUserBalance(userId, amount);
-
+  
     return portfolioEntry;
   }
-
+  
   public async updatePortfolioForSell(
     userId: number,
     stockId: number,
@@ -132,4 +152,31 @@ export class PortfolioService implements IPortfolioService {
       );
     }
   }
+
+
+  public async getUserStocks(userId:number){
+    try{
+      const findingPortfolioForUser = await Portfolio.findAll({
+        where:{userId:userId}
+      });
+
+      const userStocks = await Promise.all(findingPortfolioForUser.map(async (finding) =>{
+        const stock = await Stock.findByPk(finding.stockId);
+        if(stock){
+          return {
+            stockName: stock.name,
+            stockSymbol: stock.symbol,
+            stockPrice: stock.currentPrice,
+            quantity: finding.quantity
+          };
+        }
+      
+      }));
+      return userStocks;
+    }catch(error){
+      console.log('Error fetchuing user stocks')
+      throw error
+    }
+  
+}
 }

@@ -2,7 +2,6 @@ import { IUserService } from "../interfaces/iuser.service";
 import User from "../Model/user.model";
 
 export class UserService implements IUserService {
-
   async createUser(userData: any): Promise<any> {
     const user = await User.create(userData);
     return user;
@@ -13,32 +12,40 @@ export class UserService implements IUserService {
     return user;
   }
 
-  async decreaseUserBalance(userId: number, decreasedBalance: number): Promise<any> {
-  const findingUser = await this.getUserById(userId);
-  if (!findingUser) {
-    throw new Error('User not found');
+  async decreaseUserBalance(
+    userId: number,
+    decreasedBalance: number
+  ): Promise<any> {
+    const findingUser = await this.getUserById(userId);
+    if (!findingUser) {
+      throw new Error("User not found");
+    }
+
+    // Update the user's balance
+    findingUser.balance = findingUser.balance - decreasedBalance;
+
+    await findingUser.save();
+
+    return findingUser;
   }
 
-  // Update the user's balance
-  findingUser.balance = findingUser.balance-decreasedBalance;
+  async increaseUserBalance(
+    userId: number,
+    decreasedBalance: number
+  ): Promise<any> {
+    const findingUser = await this.getUserById(userId);
+    if (!findingUser) {
+      throw new Error("User not found");
+    }
+    console.log(decreasedBalance);
+    // Update the user's balance
+    findingUser.balance = +findingUser.balance + +decreasedBalance;
+    console.log(findingUser.balance);
 
-  await findingUser.save();
+    await findingUser.save();
 
-  return findingUser;
-}
-
-async increaseUserBalance(userId: number, decreasedBalance: number): Promise<any>{
-  const findingUser = await this.getUserById(userId);
-  if (!findingUser) {
-    throw new Error('User not found');
+    return findingUser;
   }
-  console.log(decreasedBalance)
-  // Update the user's balance
-  findingUser.balance = +findingUser.balance + +decreasedBalance;
-  console.log(findingUser.balance)
-
-  await findingUser.save();
-
-  return findingUser;
-}
+  
+  
 }
