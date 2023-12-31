@@ -17,6 +17,15 @@ export class UserController {
     }
   }
 
+  async signIn(req:Request,res:Response): Promise<void>{
+    try {
+      const user = await this.userService.signIn(req.body.email,req.body.password);
+      res.status(201).json(user);
+    } catch (error) {
+      res.status(400).json({ message: error });
+    }
+  }
+
   async getUserById(req: Request, res: Response): Promise<void> {
     try {
       const userId = parseInt(req.params.id);

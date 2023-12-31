@@ -3,8 +3,13 @@ import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/db';
 
 class User extends Model {
+  public id! : number;
+  public name!: string;
+  public email!: string;
+  public password! : string;
+  public balance! : number;
   
-}
+} 
 
 User.init({
   id: {

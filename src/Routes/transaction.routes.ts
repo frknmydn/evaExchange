@@ -4,6 +4,7 @@ import { TransactionService } from '../Services/transaction.service';
 import { PortfolioService } from '../Services/portfolio.service'; // Import your PortfolioService
 import { StockService } from '../Services/stock.service'; // Import your StockService
 import { UserService } from '../Services/user.service'; // Import your UserService
+import authenticateToken from '../middleware/authenticateToken';
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ const transactionService = new TransactionService(portfolioService, stockService
 
 const transactionController = new TransactionController(transactionService);
 
-router.post('/transactions', (req, res) => transactionController.executeTrade(req, res));
-router.get('/transactions/user/:userId', (req, res) => transactionController.getTransactionsByUserId(req, res));
+router.post('/transactions',authenticateToken, (req, res) => transactionController.executeTrade(req, res));
+router.get('/transactions/user/:userId',authenticateToken, (req, res) => transactionController.getTransactionsByUserId(req, res));
 
 export default router;
