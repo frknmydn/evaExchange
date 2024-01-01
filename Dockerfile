@@ -1,7 +1,9 @@
-FROM node:16
-WORKDIR /app
-COPY package.json .
+# 1. Node.js resmi base image'ını kullanarak başlayın
+FROM node:latest
+WORKDIR /usr/src/app
+COPY package*.json ./
 RUN npm install
 COPY . .
-
-CMD ["node", "dist/app.js"]
+RUN npm run build
+CMD [ "node", "dist/src/index.js" ]
+EXPOSE 3000
