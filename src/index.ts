@@ -1,11 +1,17 @@
-import 'dotenv/config';
-import sequelize from './config/db'; // Dikkat: İthal ettiğiniz değişken adı 'sequalize' yerine 'sequelize' olmalı.
+import dotenv from 'dotenv'
+dotenv.config({path:'../.env'})
+console.log("Current working directory:", process.cwd());
+import sequelize from './config/db'; 
 import setupAssociations from './Model/associations';
 import express from "express";
 import userRoutes from "./Routes/user.router";
 import stockRoutes from "./Routes/stock.routes"
 import portfolioRoutes from "./Routes/portfolio.routes"
 import transactionRoutes from "./Routes/transaction.routes"
+
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import swaggerOptions from "./swaggerDefinition";
 
 //For testing users and stocks bcuz task says that 
 import { StockService } from './Services/stock.service';
@@ -27,6 +33,8 @@ const testUsers = [
 
 const app = express();
 app.use(express.json());
+const swaggerSpec = swaggerJSDoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(userRoutes);
 app.use(stockRoutes);
 app.use(portfolioRoutes);
@@ -38,7 +46,7 @@ setupAssociations();
 sequelize.authenticate()
   .then(() => {
     console.log('Veritabanına başarıyla bağlanıldı.');
-    return sequelize.sync({ force: true }); // sequelize.sync() burada çağrılıyor.
+    return sequelize.sync({ force: true }); // sequelize.sync() should be in here 
   })
   .then(() => {
     console.log('Tablolar başarıyla oluşturuldu.');
@@ -58,18 +66,18 @@ async function initializeDbTestData() {
   for (const stockData of testStocks) {
     try {
       const stock = await stockService.createStock(stockData);
-      console.log('Stock created:', stock);
+      //console.log('Stock created:', stock);
     } catch (error) {
-      console.error('Error creating stock:', error);
+      //console.error('Error creating stock:', error);
     }
   }
 
   for (const userData of testUsers) {
     try {
       const user = await userService.createUser(userData);
-      console.log('User created:', user);
+      //console.log('User created:', user);
     } catch (error) {
-      console.error('Error creating user:', error);
+      //console.error('Error creating user:', error);
     }
   }
 }
