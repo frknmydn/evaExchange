@@ -7,14 +7,10 @@ import 'dotenv/config'
 export class UserService implements IUserService {
   async createUser(userData: any): Promise<any> {
     const saltRounds = 10;
-
-    // Hash the password
     const hashedPassword = await bcrypt.hash(userData.password, saltRounds);
 
-    // Replace the plain text password with the hashed one
     userData.password = hashedPassword;
 
-    // Create the user with the hashed password
     const user = await User.create(userData);
 
     return user;
@@ -51,7 +47,7 @@ export class UserService implements IUserService {
       throw new Error("User not found");
     }
     console.log(decreasedBalance);
-    // Update the user's balance
+    
     findingUser.balance = +findingUser.balance + +decreasedBalance;
     console.log(findingUser.balance);
 
@@ -71,7 +67,7 @@ export class UserService implements IUserService {
       throw new Error('Invalid credentials');
     }
 
-    // Ensure that JWT_SECRET is defined
+    
     const jwtSecret: Secret = process.env.JWT_SECRET as Secret;
     if (!jwtSecret) {
       throw new Error("JWT secret is not defined. Please set the JWT_SECRET environment variable.");

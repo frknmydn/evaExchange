@@ -1,5 +1,6 @@
 import { IStockService } from "../interfaces/istock.service";
 import Stock from '../Model/stock.model'
+import {StockNotFoundError} from "../Errors/StockNotFoundError"
 
 export class StockService implements IStockService{
 
@@ -17,13 +18,39 @@ export class StockService implements IStockService{
           });
           return stock;
         } catch (error) {
-          throw new Error('Error fetching stock by symbol');
+          throw new StockNotFoundError('Stock Not Found');
         }
       }
     
 
     async updateStockPrice(symbol: string, newPrice: number): Promise<any> {
-        //
+      try {
+        // Find the stock by its symbol
+        const stock = await Stock.findOne({
+          where: { symbol }
+        });
+  
+        // If the stock doesn't exist, throw an error
+        if (!stock) {
+          throw new StockNotFoundError(`Stock with symbol ${symbol} not found`);
+        }
+  
+        // Update the stock's price
+        stock.currentPrice = newPrice;
+  
+        // Save the changes
+        const updatedStock = await stock.save();
+  
+        // Return the updated stock
+        return updatedStock;
+      } catch (error) {
+        // Handle any other errors
+        if (error instanceof StockNotFoundError) {
+          throw error;
+        } else {
+          throw new Error(`Error updating stock price: ${error}`);
+        }
+      }
     }
 
     public async getStockByID(id: number): Promise<Stock | null> {
@@ -38,7 +65,7 @@ export class StockService implements IStockService{
   public async validateStock(stockId: number, transaction?: any): Promise<void> {
     const stock = await Stock.findByPk(stockId, { transaction });
     if (!stock) {
-        throw new Error(`Stock with ID ${stockId} not found`);
+        throw new StockNotFoundError(`Stock with ID ${stockId} not found`);
     }
 }    
 
@@ -47,19 +74,16 @@ public async fetchCurrentStockPrice(stockId: number, transaction?: any): Promise
     const stock = await Stock.findByPk(stockId, { transaction });
 
     if (!stock) {
-      throw new Error(`Stock with ID ${stockId} not found`);
+      throw new StockNotFoundError(`Stock with ID ${stockId} not found`);
     }
 
-    // Assuming 'currentPrice' is a field in your Stock model
     const currentPrice = stock.currentPrice;
 
-    // Return the current price as a number
     return currentPrice;
   } catch (error) {
-    throw new Error(`Error fetching current stock price: ${error}`);
+    throw new StockNotFoundError(`Error fetching current stock price: ${error}`);
   }
 }
 
-    
-
+  
 }

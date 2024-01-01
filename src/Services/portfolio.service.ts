@@ -2,6 +2,8 @@ import Portfolio from "../Model/portfolio.model";
 import { IPortfolioService } from "../interfaces/iportfolio.service";
 import { IUserService } from "../interfaces/iuser.service";
 import Stock from "../Model/stock.model";
+import {InsufficientFundsError} from "../Errors/InsufficientFundsError"
+
 
 export class PortfolioService implements IPortfolioService {
   private userService: IUserService;
@@ -44,7 +46,7 @@ export class PortfolioService implements IPortfolioService {
     const balance = user.balance;
 
     if (balance < requiredAmount) {
-      throw new Error("User does not have sufficient funds for the purchase");
+      throw new InsufficientFundsError("User does not have sufficient funds for the purchase");
     }
   }
 
@@ -108,11 +110,11 @@ export class PortfolioService implements IPortfolioService {
   
     
     if (!findingPortfolio) {
-      throw new Error(`User ID ${userId} does not own stock ID ${stockId}`);
+      throw new InsufficientFundsError(`User ID ${userId} does not own stock ID ${stockId}`);
     }
 
     if (findingPortfolio.quantity < quantity) {
-      throw new Error(
+      throw new InsufficientFundsError(
         `User ID ${userId} does not have enough shares of stock ID ${stockId} to sell`
       );
     }

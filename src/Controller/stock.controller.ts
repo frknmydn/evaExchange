@@ -33,7 +33,23 @@ export class StockController{
       }
 
     async updateStockPrice(req:Request, res:Response){
-        //TODO: implement logic
+        const symbol = req.params.symbol;
+        const { newPrice } = req.body;
+
+        
+        if (newPrice === undefined || typeof newPrice !== 'number') {
+            return res.status(400).json({ message: 'Invalid new price provided' });
+        }
+
+        try {
+            const updatedStock = await this.stockService.updateStockPrice(symbol, newPrice);
+            res.status(200).json(updatedStock);
+        } catch (error) {
+           
+                res.status(404).json({ message: error });
+            
+            
+        }
     }
 
     public async getStockById(req: Request, res: Response) {

@@ -3,7 +3,7 @@ import sequelize from '../config/db';
 import { StockSchema } from '../Schema/stock.schema';
 
 interface StockAttributes {
-  id?: number; // Optional because it's auto-generated
+  id?: number; 
   name: string;
   symbol: string;
   currentPrice: number;
@@ -13,7 +13,7 @@ class Stock extends Model<StockAttributes, StockAttributes> {
   id?: number;
   name!: string;
   symbol!: string;
-  currentPrice!: number; // Add type assertion here to indicate currentPrice exists
+  currentPrice!: number; 
 }
 
 Stock.init(
