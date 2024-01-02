@@ -4,6 +4,8 @@ console.log("Current working directory:", process.cwd());
 import sequelize from './config/db'; 
 import setupAssociations from './Model/associations';
 import express from "express";
+
+import healthCheck from "./Routes/healthcheck"
 import userRoutes from "./Routes/user.router";
 import stockRoutes from "./Routes/stock.routes"
 import portfolioRoutes from "./Routes/portfolio.routes"
@@ -39,6 +41,7 @@ app.use(userRoutes);
 app.use(stockRoutes);
 app.use(portfolioRoutes);
 app.use(transactionRoutes);
+app.use(healthCheck);
 const PORT = process.env.PORT || 3000;
 
 setupAssociations();
